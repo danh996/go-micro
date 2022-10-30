@@ -50,7 +50,6 @@ func (app *Config) HandleSubmission(w http.ResponseWriter, r *http.Request) {
 
 // authenticate calls the authentication microservice and sends back the appropriate response
 func (app *Config) authenticate(w http.ResponseWriter, a AuthPayload) {
-	log.Println("authenticate")
 	// create some json we'll send to the auth microservice
 	jsonData, _ := json.MarshalIndent(a, "", "\t")
 
@@ -68,7 +67,6 @@ func (app *Config) authenticate(w http.ResponseWriter, a AuthPayload) {
 		return
 	}
 	defer response.Body.Close()
-	log.Println("authenticate")
 	// make sure we get back the correct status code
 	if response.StatusCode == http.StatusUnauthorized {
 		app.errorJSON(w, errors.New("invalid credentials"))
