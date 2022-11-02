@@ -52,6 +52,7 @@ func main() {
 	}
 
 	//start web service
+	log.Println("starting logger server on port %s", webPort)
 	go app.serve()
 
 }

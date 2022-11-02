@@ -71,4 +71,3 @@ func (app *Config) errorJSON(w http.ResponseWriter, err error, status ...int) er
 
 	return app.writeJSON(w, statusCode, payload)
 }
-[LT-27950] update UT and mastermgmt service 
