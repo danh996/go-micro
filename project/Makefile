@@ -1,6 +1,8 @@
 FRONT_END_BINARY=frontApp
 BROKER_BINARY=brokerApp
+LISTENER_BINARY=listenerApp
 LOGGER_BINARY=loggerApp
+MAIL_BINARY=mailApp
 AUTH_BINARY=authApp
 
 ## up: starts all containers in the background without forcing build
@@ -10,7 +12,7 @@ up:
 	@echo "Docker images started!"
 
 ## up_build: stops docker-compose (if running), builds all projects and starts docker compose
-up_build: build_broker build_auth build_logger
+up_build: build_broker build_auth build_logger build_mail build_listener
 	@echo "Stopping docker images (if running...)"
 	docker-compose down
 	@echo "Building (when required) and starting docker images..."
@@ -23,10 +25,22 @@ down:
 	docker-compose down
 	@echo "Done!"
 
+## build_mail: builds the mail binary as a linux executable
+build_mail:
+	@echo "Building mail binary..."
+	cd ../mail-service && env GOOS=linux CGO_ENABLED=0 go build -o ${MAIL_BINARY} ./cmd/api
+	@echo "Done!"
+
 ## build_broker: builds the broker binary as a linux executable
 build_broker:
 	@echo "Building broker binary..."
 	cd ../broker-service && env GOOS=linux CGO_ENABLED=0 go build -o ${BROKER_BINARY} ./cmd/api
+	@echo "Done!"
+
+## build_listener: builds the listener binary as a linux executable
+build_listener:
+	@echo "Building listener binary..."
+	cd ../listener-service && env GOOS=linux CGO_ENABLED=0 go build -o ${LISTENER_BINARY} .
 	@echo "Done!"
 
 ## build_auth: builds the auth binary as a linux executable

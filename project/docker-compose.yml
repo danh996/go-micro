@@ -37,6 +37,15 @@ services:
     deploy:
       mode: replicated
       replicas: 1
+
+  listener-services:
+    build:
+      context: ./../listener-service #source code folder
+      dockerfile: ./../listener-service/listener-service.dockerfile
+    restart: always #'don't need port becase not export to localhost
+    deploy:
+      mode: replicated
+      replicas: 1
   postgres:
     image: 'postgres:14.0'
     ports:
