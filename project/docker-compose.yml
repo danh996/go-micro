@@ -2,6 +2,18 @@ version: '3'
 
 services:
 
+  caddy:
+    image: danh996/micro-caddy:1.0.0
+    deploy:
+      mode: replicated
+      replicas: 1
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+
   broker-services:
     build:
       context: ./../broker-service #source code folder
@@ -87,3 +99,10 @@ services:
     volumes:
       - ./db-data/rabbitmq/:/var/lib/rabbitmq
     
+
+volumes:
+  caddy_data: 
+    external: true
+  caddy_config:
+  
+      
