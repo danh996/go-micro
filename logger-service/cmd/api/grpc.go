@@ -4,13 +4,13 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"logger-service/data"
-	"logger-service/logs"
+	"log-service/data"
+	"log-service/logs"
 	"net"
 
-	"github.com/danh996/go-micro/logger-service/data"
-	"github.com/danh996/go-micro/logger-service/logs"
+	"google.golang.org/grpc"
 )
+
 
 type LogServer struct {
 	logs.UnimplementedLogServiceServer
@@ -19,45 +19,37 @@ type LogServer struct {
 
 func (l *LogServer) WriteLog(ctx context.Context, req *logs.LogRequest) (*logs.LogResponse, error) {
 	input := req.GetLogEntry()
-	//write the log
 
-	logEntry := data.LogEntry{
+	// write the log
+	logEntry := data.LogEntry {
 		Name: input.Name,
 		Data: input.Data,
 	}
 
-	err := l.Models.LogEntry.InsertOne(logEntry)
-
+	err := l.Models.LogEntry.Insert(logEntry)
 	if err != nil {
-		res := &logs.LogResponse{
-			Result: "fail",
-		}
+		res := &logs.LogResponse{Result: "failed"}
 		return res, err
 	}
 
 	// return response
-	res := &logs.LogResponse{
-		Result: "logged",
-	}
-	return res, err
-
+	res := &logs.LogResponse{Result: "logged!"}
+	return res, nil
 }
 
-func (app *Config) grpcListen() {
+func (app *Config) gRPCListen() {
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", gRpcPort))
-
 	if err != nil {
-		log.Fatalf("failed to listen to grpc: %v", err)
+		log.Fatalf("Failed to listen for gRPC: %v", err)
 	}
 
 	s := grpc.NewServer()
-	logs.RegisterLogServiceServer(s, &LogServer{
-		Models: app.Models,
-	})
 
-	log.Printf("Grpc Server started on port %s", gRpcPort)
+	logs.RegisterLogServiceServer(s, &LogServer{Models: app.Models})
 
-	if err := s.Server(lis); err != nil {
-		log.Fatalf("failed to listen to grpc: %v", err)
+	log.Printf("gRPC Server started on port %s", gRpcPort)
+
+	if err := s.Serve(lis); err != nil {
+		log.Fatalf("Failed to listen for gRPC: %v", err)
 	}
 }
