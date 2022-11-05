@@ -4,10 +4,9 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"log-service/data"
 	"net/http"
 	"time"
-
-	"log-service/data"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -27,20 +26,18 @@ type Config struct {
 }
 
 func main() {
-	//connect to mongo
-
+	// connect to mongo
 	mongoClient, err := connectToMongo()
 	if err != nil {
 		log.Panic(err)
 	}
-
 	client = mongoClient
 
-	//create a context in order to disconnect
+	// create a context in order to disconnect
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 
-	//close connection
+	// close connection
 	defer func() {
 		if err = client.Disconnect(ctx); err != nil {
 			panic(err)
@@ -51,38 +48,49 @@ func main() {
 		Models: data.New(client),
 	}
 
-	//start web service
-	log.Println("starting logger server on port %s", webPort)
-	go app.serve()
-
-}
-
-func (app *Config) serve() {
+	// start web server
+	// go app.serve()
+	log.Println("Starting service on port", webPort)
 	srv := &http.Server{
 		Addr:    fmt.Sprintf(":%s", webPort),
 		Handler: app.routes(),
 	}
 
-	err := srv.ListenAndServe()
+	err = srv.ListenAndServe()
 	if err != nil {
-		log.Panic(err)
+		log.Panic()
 	}
+
 }
 
-func connectToMongo() (*mongo.Client, error) {
-	//create connect option
-	clientOptions := options.Client().ApplyURI(mongoURL)
+// func (app *Config) serve() {
+// 	srv := &http.Server{
+// 		Addr: fmt.Sprintf(":%s", webPort),
+// 		Handler: app.routes(),
+// 	}
 
+// 	err := srv.ListenAndServe()
+// 	if err != nil {
+// 		log.Panic()
+// 	}
+// }
+
+func connectToMongo() (*mongo.Client, error) {
+	// create connection options
+	clientOptions := options.Client().ApplyURI(mongoURL)
 	clientOptions.SetAuth(options.Credential{
 		Username: "admin",
 		Password: "password",
 	})
 
-	//connect
+	// connect
 	c, err := mongo.Connect(context.TODO(), clientOptions)
 	if err != nil {
-		log.Println("Error connecting: ", err)
+		log.Println("Error connecting:", err)
+		return nil, err
 	}
+
+	log.Println("Connected to mongo!")
 
 	return c, nil
 }
