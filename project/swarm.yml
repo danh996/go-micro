@@ -2,10 +2,14 @@ version: '3'
 
 services:
 
+  front-end:
+    image: danh996/front-end:1.0.0
+    deploy:
+      mode: replicated
+      replicas: 1
+
   broker-service:
-    image: danh996/broker-service:1.0.0
-    ports:
-      - "8088:80" #local vs docker
+    image: danh996/broker-service:1.0.1
     deploy:
       mode: replicated
       replicas: 1
@@ -53,7 +57,7 @@ services:
   mailhog:
     image: "mailhog/mailhog:latest"
     ports: 
-      -"8025:8025"
+      - "8025:8025"
     deploy:
       mode: global
 
